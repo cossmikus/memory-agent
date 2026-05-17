@@ -1,0 +1,39 @@
+{
+  "scenario": "noise_resistance",
+  "description": "Small-talk turns plus a real fact. A probe on a never-discussed topic must return empty.",
+  "user_id": "fix-eve",
+  "turns": [
+    {
+      "session_id": "fix-eve-s1",
+      "timestamp": "2025-03-10T09:00:00Z",
+      "messages": [
+        {"role": "user", "content": "Hey, how are you?"},
+        {"role": "assistant", "content": "I'm doing well, thanks. How can I help?"}
+      ]
+    },
+    {
+      "session_id": "fix-eve-s2",
+      "timestamp": "2025-03-11T10:00:00Z",
+      "messages": [
+        {"role": "user", "content": "Cool, thanks. Btw, I live in Tokyo."}
+      ]
+    },
+    {
+      "session_id": "fix-eve-s3",
+      "timestamp": "2025-03-12T11:00:00Z",
+      "messages": [
+        {"role": "user", "content": "Awesome — talk later!"}
+      ]
+    }
+  ],
+  "probes": [
+    {
+      "query": "Where does this user live?",
+      "expected_any": ["Tokyo"]
+    },
+    {
+      "query": "What kind of car does this user drive?",
+      "expected_empty": true
+    }
+  ]
+}

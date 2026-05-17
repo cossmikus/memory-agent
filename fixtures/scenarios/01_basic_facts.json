@@ -1,0 +1,29 @@
+{
+  "scenario": "basic_facts",
+  "description": "User introduces themselves with multiple core facts. Probes ask each one separately.",
+  "user_id": "fix-alice",
+  "turns": [
+    {
+      "session_id": "fix-alice-s1",
+      "timestamp": "2025-03-10T09:00:00Z",
+      "messages": [
+        {"role": "user", "content": "Hi! I work at Stripe as a backend engineer. I live in Berlin and I have a dog named Biscuit."},
+        {"role": "assistant", "content": "Nice to meet you! How is Berlin treating you?"}
+      ]
+    }
+  ],
+  "probes": [
+    {
+      "query": "Where does this user work?",
+      "expected_any": ["Stripe"]
+    },
+    {
+      "query": "Where does this user live?",
+      "expected_any": ["Berlin"]
+    },
+    {
+      "query": "Does this user have any pets?",
+      "expected_any": ["Biscuit", "dog"]
+    }
+  ]
+}

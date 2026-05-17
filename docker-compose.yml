@@ -1,0 +1,30 @@
+services:
+  memory-service:
+    build: .
+    image: memory-service:local
+    container_name: memory-service
+    ports:
+      - "8080:8080"
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      MEMORY_AUTH_TOKEN: ${MEMORY_AUTH_TOKEN:-}
+      EXTRACTION_MODEL: ${EXTRACTION_MODEL:-gpt-4o-mini}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-3-small}
+      EMBEDDING_DIM: ${EMBEDDING_DIM:-1536}
+      RERANKER_ENABLED: ${RERANKER_ENABLED:-false}
+      MIN_RECALL_SCORE: ${MIN_RECALL_SCORE:-0.05}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DB_PATH: /data/memory.db
+    volumes:
+      - memory_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 5s
+      timeout: 3s
+      start_period: 10s
+      retries: 3
+
+volumes:
+  memory_data:
+    name: memory_service_data

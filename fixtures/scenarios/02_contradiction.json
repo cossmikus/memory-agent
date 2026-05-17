@@ -1,0 +1,28 @@
+{
+  "scenario": "contradiction",
+  "description": "User changes jobs across sessions. Recall must return the current employer.",
+  "user_id": "fix-bob",
+  "turns": [
+    {
+      "session_id": "fix-bob-s1",
+      "timestamp": "2025-03-10T09:00:00Z",
+      "messages": [
+        {"role": "user", "content": "I work at Stripe as a backend engineer."}
+      ]
+    },
+    {
+      "session_id": "fix-bob-s2",
+      "timestamp": "2025-05-01T11:00:00Z",
+      "messages": [
+        {"role": "user", "content": "Big update — I just started at Notion."}
+      ]
+    }
+  ],
+  "probes": [
+    {
+      "query": "Where does this user currently work?",
+      "expected_any": ["Notion"],
+      "must_not_contain_as_current": ["Stripe as a current"]
+    }
+  ]
+}

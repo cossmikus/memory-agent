@@ -1,0 +1,27 @@
+{
+  "scenario": "multi_hop",
+  "description": "Probe that requires combining two separate memories — user owns Biscuit, user lives in Berlin.",
+  "user_id": "fix-claire",
+  "turns": [
+    {
+      "session_id": "fix-claire-s1",
+      "timestamp": "2025-03-10T09:00:00Z",
+      "messages": [
+        {"role": "user", "content": "I have a dog named Biscuit."}
+      ]
+    },
+    {
+      "session_id": "fix-claire-s2",
+      "timestamp": "2025-04-05T12:00:00Z",
+      "messages": [
+        {"role": "user", "content": "I moved to Berlin last week."}
+      ]
+    }
+  ],
+  "probes": [
+    {
+      "query": "Biscuit lives in which city?",
+      "expected_any": ["Berlin"]
+    }
+  ]
+}
