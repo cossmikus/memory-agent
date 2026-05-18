@@ -43,10 +43,12 @@ class Settings(BaseSettings):
     rrf_k: int = 60
     bm25_top_k: int = 30
     vector_top_k: int = 30
-    # Cosine-similarity floor for vector hits. text-embedding-3-small puts
-    # genuinely unrelated text well below 0.4; the floor keeps off-topic
-    # queries from leaking weak vector matches into recall.
-    vector_score_floor: float = 0.35
+    # Cosine-similarity floor for vector hits. Tuned empirically against
+    # text-embedding-3-small (see scripts/debug_floor.py): semantically-related
+    # queries on food/allergy/work land 0.30+, while genuinely unrelated
+    # queries (cars, never-discussed topics) land below 0.20. 0.30 keeps the
+    # noise out while letting topic-adjacent queries bridge to relevant facts.
+    vector_score_floor: float = 0.30
 
     # Logging
     log_level: str = "INFO"

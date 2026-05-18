@@ -158,7 +158,15 @@ def _rank_facts(facts: list[Memory]) -> list[Memory]:
 
 
 def _pretty_key(key: str) -> str:
-    return key.replace("_", " ").replace(":", " ").strip().title()
+    """Render the human-readable category portion of a canonical key.
+
+    For multi-valued keys like 'allergy:shellfish' or 'pet:Biscuit:species',
+    only the attribute prefix is shown — the value already appears alongside
+    in the output line, so duplicating it would read "Allergy Shellfish:
+    shellfish".
+    """
+    head = key.split(":", 1)[0]
+    return head.replace("_", " ").strip().title()
 
 
 def _truncate_to_tokens(text: str, max_tokens: int) -> str:

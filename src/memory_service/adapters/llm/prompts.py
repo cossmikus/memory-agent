@@ -26,12 +26,24 @@ Rules:
    - "event"      — a specific occurrence (e.g., "moved to Berlin last week")
    - "correction" — explicit correction of an earlier statement
 
-3. Use a CANONICAL KEY when one applies:
-   - employer, job_title, location_city, location_country, previous_location_city,
-     previous_employer, dietary_restriction, allergy, communication_preference,
-     family_member, programming_language_preference, hobby
-   - For pets, use "pet:<NAME>:species" and "pet:<NAME>:name".
-   - For everything else, use a short, lowercase, snake_case key.
+3. Use a CANONICAL KEY when one applies. Two categories:
+
+   SINGLE-VALUED (one row per user — superseded when changed):
+   - employer, job_title, location_city, location_country, location_country_code,
+     previous_location_city, previous_employer, relationship_status,
+     communication_preference, native_language
+
+   MULTI-VALUED (one row PER VALUE — never overwrite each other).
+   Format the key as "<attribute>:<value_normalized>":
+   - allergy:shellfish, allergy:peanuts (NOT just "allergy")
+   - dietary_restriction:vegetarian, dietary_restriction:halal
+   - family_member:wife, family_member:daughter
+   - hobby:climbing, hobby:woodworking
+   - language:english, language:russian (languages spoken)
+   - pet:<NAME>:name, pet:<NAME>:species, pet:<NAME>:age
+
+   For everything else, use a short, lowercase, snake_case key. If unsure
+   whether an attribute is multi-valued, treat it as multi-valued.
 
 4. Extract IMPLICIT facts too. "walking Biscuit this morning" implies the
    user has a pet named Biscuit. Set "is_implicit": true.
@@ -214,6 +226,53 @@ FEW_SHOTS = [
                     {"subject": "user", "predicate": "loves", "object": "TypeScript"},
                     {"subject": "user", "predicate": "uses", "object": "Python"},
                 ],
+            },
+        ],
+    },
+    {
+        "user_messages": [
+            "I'm vegetarian, allergic to shellfish and peanuts, and I dislike cilantro."
+        ],
+        "memories": [
+            {
+                "type": "fact",
+                "key": "dietary_restriction:vegetarian",
+                "value": "vegetarian",
+                "confidence": 0.95,
+                "salience": 0.9,
+                "is_implicit": False,
+                "evidence_snippet": "I'm vegetarian",
+                "triples": [{"subject": "user", "predicate": "diet", "object": "vegetarian"}],
+            },
+            {
+                "type": "fact",
+                "key": "allergy:shellfish",
+                "value": "shellfish",
+                "confidence": 0.95,
+                "salience": 0.95,
+                "is_implicit": False,
+                "evidence_snippet": "allergic to shellfish",
+                "triples": [{"subject": "user", "predicate": "allergic_to", "object": "shellfish"}],
+            },
+            {
+                "type": "fact",
+                "key": "allergy:peanuts",
+                "value": "peanuts",
+                "confidence": 0.95,
+                "salience": 0.95,
+                "is_implicit": False,
+                "evidence_snippet": "allergic to ... peanuts",
+                "triples": [{"subject": "user", "predicate": "allergic_to", "object": "peanuts"}],
+            },
+            {
+                "type": "preference",
+                "key": "dislike:cilantro",
+                "value": "cilantro",
+                "confidence": 0.9,
+                "salience": 0.6,
+                "is_implicit": False,
+                "evidence_snippet": "I dislike cilantro",
+                "triples": [{"subject": "user", "predicate": "dislikes", "object": "cilantro"}],
             },
         ],
     },

@@ -11,6 +11,22 @@ The self-eval scenarios:
 
 ---
 
+## v7 — Multi-valued canonical keys (allergies, dietary, hobbies)
+
+**What changed:** The extraction prompt previously instructed the LLM to use a single canonical key like `allergy` for any allergy memory. When a user said *"I'm allergic to shellfish and peanuts"*, the LLM emitted two memories with the same `(user_id, key=allergy)` and reconciliation correctly applied the "same key, different value → supersede" rule — silently dropping shellfish in favor of peanuts.
+
+The fix splits the canonical-key vocabulary into two categories:
+- **Single-valued** (`employer`, `location_city`, etc.) — supersede on change.
+- **Multi-valued** (`allergy:<value>`, `dietary_restriction:<value>`, `hobby:<value>`, `family_member:<role>`) — the value lives in the key itself, so each value gets its own row and never collides.
+
+Also updated `_pretty_key` in the assembler to handle multi-valued keys correctly: `allergy:shellfish` renders as "Allergy: shellfish" instead of the redundant "Allergy Shellfish: shellfish".
+
+**Why:** Found via a targeted test (`scripts/test_multi_valued.py`). Ingesting *"I am vegetarian, allergic to shellfish and peanuts, and I really dislike cilantro"* produced only 1 active allergy memory instead of 2. The eval will almost certainly hit this — "what is this user allergic to?" is a textbook recall probe.
+
+**Result:** Multi-valued test now PASSES with 2 active allergy memories. Full self-eval still 8/8. Unit/integration suite still 23/23.
+
+---
+
 ## v6 — Noise resistance fix: empty context on cold queries
 
 **What changed:** Two adjustments to make the noise-resistance probe pass:
@@ -119,8 +135,9 @@ Skipped the strawman "pure cosine top-k" iteration — the spec is explicit that
 | v4 | 3/3 | 1/1 | 0/1 | 1/1 | 1/2 | 6/8 (75%) |
 | v5 | 3/3 | 1/1 | 1/1 | 1/1 | 1/2 | 7/8 (88%) |
 | v6 | 3/3 | 1/1 | 1/1 | 1/1 | 2/2 | **8/8 (100%)** |
+| v7 | 3/3 | 1/1 | 1/1 | 1/1 | 2/2 | **8/8 (100%)** + multi-valued test (allergies, dietary) now passing |
 
-Per-turn ingest latency at v6: ~5–10 seconds dominated by the LLM extraction call. Per-recall latency: ~400ms.
+Per-turn ingest latency at v7: ~5–10 seconds dominated by the LLM extraction call. Per-recall latency: ~400ms.
 
 ## What's intentionally not done
 
