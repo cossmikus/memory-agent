@@ -1,4 +1,4 @@
-"""Custom exception handlers — translate domain/HTTP errors to JSON responses."""
+"""Custom exception handlers — translate framework/domain errors to JSON responses."""
 from __future__ import annotations
 
 from fastapi import FastAPI, Request, status
@@ -16,10 +16,7 @@ def register_error_handlers(app: FastAPI) -> None:
     async def _validation_handler(request: Request, exc: RequestValidationError):
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "error": "validation_error",
-                "detail": exc.errors(),
-            },
+            content={"error": "validation_error", "detail": exc.errors()},
         )
 
     @app.exception_handler(StarletteHTTPException)

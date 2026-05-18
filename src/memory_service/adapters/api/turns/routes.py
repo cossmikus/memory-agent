@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, status
 
-from memory_service.api.schemas import TurnRequest, TurnResponse
+from memory_service.adapters.api.turns.schemas import TurnRequest, TurnResponse
 from memory_service.deps import AuthDep, ServiceDep
 from memory_service.domain.models import Message, Turn
 from memory_service.domain.service import MemoryService

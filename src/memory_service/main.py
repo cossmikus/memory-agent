@@ -24,8 +24,8 @@ from memory_service.adapters.llm.regex_llm import RegexLLM
 from memory_service.adapters.storage.db import Database
 from memory_service.adapters.storage.memories_repo import MemoriesRepo
 from memory_service.adapters.storage.turns_repo import TurnsRepo
-from memory_service.api.errors import register_error_handlers
-from memory_service.api.router import register_routes
+from memory_service.adapters.api.errors import register_error_handlers
+from memory_service.adapters.api.router import register_routes
 from memory_service.config import get_settings
 from memory_service.core.logging import configure_logging, get_logger
 from memory_service.domain.service import MemoryService

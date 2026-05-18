@@ -4,7 +4,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Request
 
 from memory_service import __version__
-from memory_service.api.schemas import HealthResponse
+from memory_service.adapters.api.health.schemas import HealthResponse
 from memory_service.config import get_settings
 
 router = APIRouter(tags=["health"])

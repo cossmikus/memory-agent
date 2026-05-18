@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Path
 
-from memory_service.api.schemas import MemoriesResponse, MemoryOut
+from memory_service.adapters.api.memories.schemas import MemoriesResponse, MemoryOut
 from memory_service.deps import AuthDep, ServiceDep
 from memory_service.domain.service import MemoryService
 

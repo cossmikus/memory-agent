@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from memory_service.api.schemas import (
+from memory_service.adapters.api.recall.schemas import (
     CitationOut,
     RecallRequest,
     RecallResponse,
