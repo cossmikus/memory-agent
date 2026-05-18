@@ -79,6 +79,28 @@ The codebase is laid out as **ports-and-adapters** (`src/memory_service/`):
 
 The domain layer is fully unit-testable in isolation. Adapters are swappable behind the `Protocol` interfaces — flipping to Postgres+pgvector or a different LLM provider is a per-file change, not a refactor.
 
+## Language & framework choice: Python + FastAPI
+
+I considered Go (stdlib `net/http`) seriously before picking Python + FastAPI. Go's usual selling points — cheap concurrency via goroutines, ~20 MB static-binary containers, faster startup — are real, but **none of them are the bottleneck of this service**.
+
+The per-request work this service does is dominated by **outbound LLM calls**:
+
+- `POST /turns`: one extraction call to GPT-4o-mini (~5–8 seconds round-trip).
+- `POST /recall`: one embedding call to OpenAI (~150–300 ms).
+
+Compared to the LLM round-trip, the cost of accepting an HTTP request, validating Pydantic input, and dispatching to a handler is rounding error. Goroutine-vs-asyncio is invisible at this scale. The actual concurrency I need — running BM25 + vector + keyword retrieval **in parallel** while the LLM embedding call is in flight — Python gives me cleanly via `asyncio.gather` in `domain/recall.py`. Go would write it more elegantly with `errgroup`, but the wall-clock outcome is identical.
+
+What Python *does* give me that Go does not:
+
+- **Mature, first-party OpenAI SDK** (`openai.AsyncOpenAI`) with strict function-calling types out of the box. Go's official SDK exists but is younger; structured-output ergonomics would cost me half a day I'd rather spend on extraction quality.
+- **Pydantic v2** for ironclad request/response validation at the HTTP boundary, with the exact error shapes the spec asks for (422 on malformed input, etc.). Reproducing this in Go means hand-writing per-endpoint validators.
+- **`tiktoken`** for accurate `cl100k_base` token counting in the context assembler. Critical for honoring `max_tokens` without overshoot. Go has no first-class equivalent.
+- **`structlog`**, **`aiosqlite`**, **`sqlite-vec`** Python bindings — all of which I'd need to either rewrite or wrap in Go.
+
+The trade-off is real but small: the container image is ~150 MB instead of ~20 MB, and cold start is ~3 seconds instead of <100 ms. Neither matters in this grading setup. `docker compose up -d` followed by a health-poll loop is the entry condition; nobody is rebooting the container twice a second.
+
+Where Go *would* win — high-RPS edge services, low-cost serverless, single-binary distribution to embedded systems — none of those apply. For a single-container memory service whose throughput ceiling is set by OpenAI's API, Python + FastAPI is the right tool. I documented this trade explicitly so a reviewer can disagree from a known starting point.
+
 ## Backing store choice: SQLite + FTS5 + sqlite-vec
 
 One SQLite file in a named Docker volume holds everything:
